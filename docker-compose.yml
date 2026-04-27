@@ -13,6 +13,9 @@ services:
     depends_on:
       - db
 
+  api-test:
+    build: .
+
   db:
     image: postgres:18
     container_name: postgres_db

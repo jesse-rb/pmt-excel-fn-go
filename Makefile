@@ -4,4 +4,8 @@ build-run:
 	docker-compose up --build
 
 test:
-	go test $(PKG) -run $(RUN) -v
+	docker-compose run --rm api-test sh -c "\
+	go install github.com/mfridman/tparse@v0.18 && \
+	go test $(if $(PKG),$(PKG),./...) \
+	$(if $(RUN),-run $(RUN),) \
+	-v -json | tparse - all"
