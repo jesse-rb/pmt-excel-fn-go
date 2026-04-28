@@ -2,13 +2,11 @@ package pmt
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/jesse-rb/pmt-excel-fn-go/pkg/money"
+	"github.com/jesse-rb/pmt-excel-fn-go/protogen"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -23,12 +21,14 @@ func (m *mockStore) Create(ctx context.Context, loanAmountCents int64, interestR
 }
 
 func TestHandlePMT(t *testing.T) {
+	ctx := context.Background()
+
 	type TestCase struct {
-		setupMocks           func(*mockStore)
-		name                 string
-		input                HandlePMTParams
-		expectedPMT          string
-		expectedResponseCode int
+		setupMocks    func(*mockStore)
+		name          string
+		input         protogen.PMTRequest
+		expectedPMT   string
+		expectedError bool
 	}
 
 	cases := []TestCase{
@@ -46,26 +46,26 @@ func TestHandlePMT(t *testing.T) {
 					).
 					Return(&PMTHistory{}, nil)
 			},
-			input: HandlePMTParams{
+			input: protogen.PMTRequest{
 				LoanAmount:   10_000_000,
 				InterestRate: 1.2,
 				NumPayments:  3,
 			},
-			expectedPMT:          "13243781.09",
-			expectedResponseCode: http.StatusOK,
+			expectedPMT:   "13243781.09",
+			expectedError: false,
 		},
 		{
 			name: "unhappy - 0 num payments should respond http status Bad Request",
 			setupMocks: func(store *mockStore) {
 				store.AssertNotCalled(t, "Create")
 			},
-			input: HandlePMTParams{
+			input: protogen.PMTRequest{
 				LoanAmount:   10_000_000,
 				InterestRate: 1.2,
 				NumPayments:  0,
 			},
-			expectedPMT:          "",
-			expectedResponseCode: http.StatusBadRequest,
+			expectedPMT:   "",
+			expectedError: true,
 		},
 		{
 			name: "unhappy - db error should respond with http status Internal Server Error",
@@ -81,51 +81,39 @@ func TestHandlePMT(t *testing.T) {
 					).
 					Return((*PMTHistory)(nil), fmt.Errorf("A db error occured"))
 			},
-			input: HandlePMTParams{
+			input: protogen.PMTRequest{
 				LoanAmount:   10_000_000,
 				InterestRate: 1.2,
 				NumPayments:  3,
 			},
-			expectedPMT:          "",
-			expectedResponseCode: http.StatusInternalServerError,
+			expectedPMT:   "",
+			expectedError: true,
 		},
 	}
 
-	for _, c := range cases {
+	for i := range cases {
+		c := &cases[i]
 		t.Run(c.name, func(t *testing.T) {
 			// Setup mocks
 			store := &mockStore{}
 			c.setupMocks(store)
 
 			// Setup handler
-			handler := NewHTTPHandler(store)
-			req := httptest.NewRequest(
-				http.MethodGet,
-				fmt.Sprintf(
-					"/pmt?loan_amount=%f&interest_rate=%f&num_payments=%d",
-					c.input.LoanAmount,
-					c.input.InterestRate,
-					c.input.NumPayments,
-				),
-				nil,
-			)
-			rec := httptest.NewRecorder()
+			handler := &GRPCHandler{
+				store: store,
+			}
 
 			// Run handler
-			handler.HandlePMT(rec, req)
-			require.Equal(t, c.expectedResponseCode, rec.Code)
+			resp, err := handler.CalculatePMT(ctx, &c.input)
 
-			// Get response body
-			var resp HandlePMTResponse
-			err := json.NewDecoder(rec.Body).Decode(&resp)
-			if c.expectedResponseCode == http.StatusOK {
+			if !c.expectedError {
 				require.NoError(t, err)
+				require.Equal(t, c.expectedPMT, resp.Pmt)
 			} else {
 				require.Error(t, err)
 			}
 
 			// Make assertions
-			require.Equal(t, c.expectedPMT, resp.PMT)
 			store.AssertExpectations(t)
 		})
 	}

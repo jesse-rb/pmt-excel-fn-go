@@ -5,17 +5,25 @@ import (
 	"math"
 )
 
-var ErrZeroNumPayments = errors.New("number of payments must not be 0")
+type Service struct {
+}
 
-func CalcPMT(loanAmountCents int64, annualInterestRate float64, numPayments int32) (int64, error) {
+func NewService() *Service {
+	return &Service{}
+}
+
+var ErrZeroNumPayments = errors.New("number of payments must not be 0")
+var ErrInternal = errors.New("something went wrong")
+
+func (s *Service) CalcPMT(loanAmountCents int64, interestRate float64, numPayments int32) (int64, error) {
 	if numPayments == 0 {
 		return 0, ErrZeroNumPayments
 	}
-	if annualInterestRate == 0 {
+	if interestRate == 0 {
 		return loanAmountCents / int64(numPayments), nil
 	}
 
-	r := annualInterestRate
+	r := interestRate
 	n := float64(numPayments)
 	pv := float64(loanAmountCents)
 
