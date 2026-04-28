@@ -28,3 +28,26 @@ func TestToCents(t *testing.T) {
 		assert.Equal(t, expected[i], actual)
 	}
 }
+
+func TestFromCents(t *testing.T) {
+	cases := []int64{
+		0,
+		1,
+		11,
+		123,
+		2342,
+	}
+
+	expected := []float64{
+		0,
+		0.01,
+		0.11,
+		1.23,
+		23.42,
+	}
+
+	for i := range cases {
+		actual := FromCents(cases[i])
+		assert.Equal(t, expected[i], actual)
+	}
+}

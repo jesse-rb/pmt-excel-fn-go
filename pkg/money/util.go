@@ -5,5 +5,5 @@ func ToCents(v float64) int64 {
 }
 
 func FromCents(v int64) float64 {
-	return float64(v / 100)
+	return float64(v) / 100
 }
