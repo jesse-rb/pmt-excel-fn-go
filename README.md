@@ -11,6 +11,12 @@ Calculates monthly repayment amount for a loan.
 
 # Running and testing services locally
 
+**Install tools required by go.mod e.g. grpc-gateway deps**
+
+```
+go install tool
+```
+
 **migratiohs**
 - For convenience in local dev, migrations are ran automatically when our pmt service starts up
 
