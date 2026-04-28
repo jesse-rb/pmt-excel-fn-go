@@ -11,6 +11,12 @@ Calculates monthly repayment amount for a loan.
 
 # Running and testing services locally
 
+**Install tools required by go.mod e.g. grpc-gateway deps**
+
+```
+go install tool
+```
+
 **migratiohs**
 - For convenience in local dev, migrations are ran automatically when our pmt service starts up
 
@@ -49,6 +55,13 @@ make test PKG='./pkg/money' RUN='TestToCents'
 
 **usage examples**
 
+http (calls proxy grpc server)
 ```
-curl "localhost:8080/pmt?loan_amount=10&interest_rate=0&num_payments=2"
+curl -X POST http://localhost:8080/pmt \
+  -H "Content-Type: application/json" \
+  -d '{
+    "loan_amount": 100000,
+    "interest_rate": 0.05,
+    "num_payments": 360
+  }'
 ```

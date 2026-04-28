@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"net/http"
 	"os"
 	"time"
 
@@ -13,6 +12,8 @@ import (
 )
 
 func main() {
+	ctx := context.Background()
+
 	// Connect to DB
 	dbHost := os.Getenv("DB_HOST")
 	dbPort := os.Getenv("DB_PORT")
@@ -29,7 +30,7 @@ func main() {
 
 	// Check DB connection before continuing
 	for i := 0; i < 10; i++ {
-		if db.Pool.Ping(context.Background()) == nil {
+		if db.Pool.Ping(ctx) == nil {
 			break
 		}
 		time.Sleep(time.Second)
@@ -40,16 +41,17 @@ func main() {
 
 	pg := pmt.NewPostgresRepository(db.Pool)
 
-	// Setup HTTP handler and routes
-	httpHandler := pmt.NewHTTPHandler(pg)
-	mux := http.NewServeMux()
-	mux.HandleFunc("/pmt", httpHandler.HandlePMT)
+	grpcServer := NewGRPCServer(":9090", pg)
+	go (func() {
+		err = grpcServer.Run() // Blocking, so we run in a go-rotine
+		if err != nil {
+			slog.Error("error starting pmt grpc server", "err", err)
+		}
+	})()
 
-	// Listen and serve HTTP
-	httpServer := &http.Server{
-		Addr:    ":8080",
-		Handler: mux,
+	httpProxy := NewHTTPServer(":8080")
+	err = httpProxy.Run(ctx)
+	if err != nil {
+		slog.Error("error starting pmt http grpc proxy server", "err", err)
 	}
-	defer httpServer.Close()
-	httpServer.ListenAndServe()
 }

@@ -1,0 +1,23 @@
+syntax = "proto3";
+option go_package = "github.com/jesse-rb/pmt-excel-fn-go/protogen";
+
+import "google/api/annotations.proto";
+
+message PMTRequest {
+    double loan_amount = 1;
+    double interest_rate = 2;
+    int32 num_payments = 3;
+}
+
+message PMTResponse {
+    string pmt = 1;
+}
+
+service PMTService {
+    rpc CalculatePMT (PMTRequest) returns (PMTResponse) {
+        option (google.api.http) = {
+            post: "/pmt"
+            body: "*"
+        };
+    }
+}

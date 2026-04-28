@@ -8,6 +8,7 @@ import (
 )
 
 func TestCalcPMT(t *testing.T) {
+	s := NewService()
 	t.Run("happy", func(t *testing.T) {
 		cases := []struct {
 			loanAmountCents int64
@@ -28,7 +29,7 @@ func TestCalcPMT(t *testing.T) {
 		}
 
 		for _, c := range cases {
-			actual, err := CalcPMT(c.loanAmountCents, c.interestRate, c.numPayments)
+			actual, err := s.CalcPMT(c.loanAmountCents, c.interestRate, c.numPayments)
 			require.NoError(t, err)
 			assert.Equal(t, c.expected, actual)
 		}
@@ -41,7 +42,7 @@ func TestCalcPMT(t *testing.T) {
 			numPayments     int32
 		}{loanAmountCents: 1000, interestRate: 0.1, numPayments: 0}
 
-		_, err := CalcPMT(c.loanAmountCents, c.interestRate, c.numPayments)
+		_, err := s.CalcPMT(c.loanAmountCents, c.interestRate, c.numPayments)
 		require.ErrorIs(t, err, ErrZeroNumPayments)
 	})
 }
