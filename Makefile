@@ -9,4 +9,4 @@ docker-down:
 test:
 	go test $(if $(PKG),$(PKG),./...) \
 	$(if $(RUN),-run $(RUN),) \
-	-v -json | tparse -all
+	-v -json -cover | tparse -all
