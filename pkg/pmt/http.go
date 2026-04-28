@@ -46,7 +46,7 @@ func (h HTTPHandler) HandlePMT(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if params.NumPayments == 0 {
-		slog.Error("invalid requres: 0 num payments")
+		slog.Error("invalid request: 0 num payments")
 		http.Error(w, "num_payments must be not be 0", http.StatusBadRequest)
 		return
 	}

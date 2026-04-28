@@ -50,5 +50,6 @@ func main() {
 		Addr:    ":8080",
 		Handler: mux,
 	}
+	defer httpServer.Close()
 	httpServer.ListenAndServe()
 }
