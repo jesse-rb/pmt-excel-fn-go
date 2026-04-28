@@ -29,7 +29,6 @@ func main() {
 
 	// Check DB connection before continuing
 	for i := 0; i < 10; i++ {
-		// db, err := sql.Open("postgres", dsn)
 		if db.Pool.Ping(context.Background()) == nil {
 			break
 		}
@@ -39,10 +38,14 @@ func main() {
 	// For local dev (for convenience), we can run DB migrations on startup
 	db.RunMigrations()
 
-	// Listen and serve HTTP server
-	httpHandler := pmt.NewHTTPHandler(nil)
+	pg := pmt.NewPostgresRepository(db.Pool)
+
+	// Setup HTTP handler and routes
+	httpHandler := pmt.NewHTTPHandler(pg)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/pmt", httpHandler.HandlePMT)
+
+	// Listen and serve HTTP
 	httpServer := &http.Server{
 		Addr:    ":8080",
 		Handler: mux,

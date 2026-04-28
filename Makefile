@@ -1,11 +1,12 @@
-.PHONY: build-run test
+.PHONY: docker-build-run test
 
-build-run:
+docker-build-run:
 	docker-compose up --build
 
+docker-down:
+	docker-compose down --remove-orphans
+
 test:
-	docker-compose run --rm api-test sh -c "\
-	go install github.com/mfridman/tparse@v0.18 && \
 	go test $(if $(PKG),$(PKG),./...) \
 	$(if $(RUN),-run $(RUN),) \
-	-v -json | tparse - all"
+	-v -json | tparse -all

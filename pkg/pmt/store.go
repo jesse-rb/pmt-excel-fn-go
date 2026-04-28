@@ -3,9 +3,12 @@ package pmt
 import (
 	"context"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type PMTHistory struct {
+	ID              uuid.UUID
 	LoanAmountCents int64
 	InterestRate    float64
 	NumPayments     int32
