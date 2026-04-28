@@ -41,19 +41,6 @@ func main() {
 
 	pg := pmt.NewPostgresRepository(db.Pool)
 
-	// // Setup HTTP handler and routes
-	// httpHandler := pmt.NewHTTPHandler(pg)
-	// mux := http.NewServeMux()
-	// mux.HandleFunc("/pmt", httpHandler.HandlePMT)
-	//
-	// // Listen and serve HTTP
-	// httpServer := &http.Server{
-	// 	Addr:    ":8080",
-	// 	Handler: mux,
-	// }
-	// defer httpServer.Close()
-	// httpServer.ListenAndServe()
-
 	grpcServer := NewGRPCServer(":9090", pg)
 	go (func() {
 		err = grpcServer.Run() // Blocking, so we run in a go-rotine
