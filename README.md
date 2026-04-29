@@ -53,15 +53,28 @@ make test PKG='./pkg/money' RUN='TestToCents'
 
 ## PMT (excel function)
 
-**usage examples**
-
-http (calls proxy grpc server)
+**using curl -- http (calls proxy grpc server)**
 ```
 curl -X POST http://localhost:8080/pmt \
   -H "Content-Type: application/json" \
   -d '{
     "loan_amount": 100000,
     "interest_rate": 0.05,
-    "num_payments": 360
+    "num_payments": 3
   }'
+```
+
+**using grpcurl -- grpc**
+
+`go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest`
+
+```
+grpcurl -plaintext -d '{
+    "loan_amount": 100000,
+    "interest_rate": 0.05,
+    "num_payments": 3
+  }' \
+  -import-path ./protobuf \
+  -proto pmt.proto \
+  localhost:9090 PMTService/CalculatePMT
 ```
