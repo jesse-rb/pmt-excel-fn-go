@@ -37,6 +37,7 @@ k8s-deploy: protoc
 k8s-down:
 	kubectl delete -f k8s/
 	kubectl delete secret db-secret
+	eval $$(minikube docker-env); \
 	docker rmi pmt-api:local
 
 k8s-tunnel-pmt:
