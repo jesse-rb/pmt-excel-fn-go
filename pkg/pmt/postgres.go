@@ -16,6 +16,7 @@ func NewPostgresRepository(db *pgxpool.Pool) *PostgresRepository {
 	return &PostgresRepository{db: db}
 }
 
+// Create stores a record of the pmt function input and result
 func (r *PostgresRepository) Create(ctx context.Context, loanAmountCents int64, interestRate float64, numPayments int32, pmtCents int64) (*PMTHistory, error) {
 	new := &PMTHistory{}
 	args := []interface{}{loanAmountCents, interestRate, numPayments, pmtCents}
