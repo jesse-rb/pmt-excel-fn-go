@@ -78,3 +78,7 @@ grpcurl -plaintext -d '{
   -proto pmt.proto \
   localhost:9090 PMTService/CalculatePMT
 ```
+
+# k8s
+
+
