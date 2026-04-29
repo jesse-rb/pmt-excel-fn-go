@@ -202,6 +202,11 @@ kubectl port-forward service/pmt 8080:8080 9090:9090
 
 Then see and run the commands documented in the "# Services" section of this README.md
 
+Quick DB check through commandline:
+```
+kubectl exec -it $(kubectl get pod -l app=postgres -o jsonpath='{.items[0].metadata.name}') -- psql -U postgres -d pmt_db
+```
+
 **Teardown our cluster specfications**
 
 ```
