@@ -5,6 +5,7 @@ Calculates monthly repayment amount for a loan.
 
 **Requirements**
 - docker and docker-compose (docker desktop comes with both docker and docker-compose binaries)
+- protocol buffer compile (protoc cli tool) e.g. `brew install protobuf`
 - go v1.26.2
 - required go tools `go install tool`
     - tparse: for nice test output summary

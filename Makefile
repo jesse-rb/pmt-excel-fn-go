@@ -24,8 +24,8 @@ test: protoc
 	$(if $(RUN),-run $(RUN),) \
 	-v -json -cover | tparse -all
 
-k8s-deploy:
-	eval $(minikube docker-env)
+k8s-deploy: protoc
+	eval $(minikube docker-env) && \
 	docker build -t pmt-api:local .
 	kubectl create secret generic db-secret \
 	  --from-literal=POSTGRES_USER=postgres \
