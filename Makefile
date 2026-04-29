@@ -1,4 +1,4 @@
-.PHONY: protoc docker-build-run test
+.PHONY: protoc docker-build-run test k8s-deploy k8s-down k8s-tunnel-pmt k8s-tunnel-db
 
 protoc-gateway:
 	mkdir -p protogen && \
@@ -24,3 +24,23 @@ test: protoc
 	$(if $(RUN),-run $(RUN),) \
 	-v -json -cover | tparse -all
 
+k8s-deploy:
+	eval $(minikube docker-env)
+	docker build -t pmt-api:local .
+	kubectl create secret generic db-secret \
+	  --from-literal=POSTGRES_USER=postgres \
+	  --from-literal=POSTGRES_PASSWORD=postgres \
+	  --from-literal=POSTGRES_DB=pmt_db
+	kubectl apply -f k8s/
+
+
+k8s-down:
+	kubectl delete -f k8s/
+	kubectl delete secret db-secret
+	docker rmi pmt-api:local
+
+k8s-tunnel-pmt:
+	kubectl port-forward service/pmt 8080:8080 9090:9090
+
+k8s-tunnel-db:
+	kubectl port-forward service/db 5432:5432

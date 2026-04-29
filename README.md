@@ -78,3 +78,132 @@ grpcurl -plaintext -d '{
   -proto pmt.proto \
   localhost:9090 PMTService/CalculatePMT
 ```
+
+# k8s
+
+**Requirements**
+
+- A k8s cluster e.g. locally via minikube
+- kubectl k8s cli tool
+
+**Start k8s cluster (assuming minikube)**
+
+Start a local k8s cluster via minikube and docker
+```
+minikube start --driver=docker
+```
+
+When finished, you can stop or destroy the minikube cluster
+```
+minikube stop
+minikube destroy
+```
+
+Check minikube is ready:
+
+```
+> kubectl get nodes                                                                                                                                            ?  11s ?? minikube ?  16:16:46
+NAME       STATUS   ROLES           AGE   VERSION
+minikube   Ready    control-plane   38s   v1.35.1
+```
+
+## k8s Makefile targets
+
+Below are "## Detailed k8s deployment instructions" however, the following Makefile targets can also be used for dev convenience
+
+**Build image using minikube docker daemon, create k8s secrets, apply k8s manifests**
+```
+make k8s-deploy
+```
+
+**Open k8s pmt service tunnel to our localhost**
+```
+make k8s-tunnel-pmt
+```
+
+**Open k8s db tunnel to our localhost**
+```
+make k8s-tunnel-db
+```
+
+**Unapply k8s manifests, delete k8s secrets, delete docker image**
+```
+make k8s-down
+```
+
+## Detailed k8s deployment instructions
+
+**Build docker image**
+
+For production, we would need to publish our image to a container registry.
+
+For our minikube cluster to access the image, let the shell use the minikube docker daemon before building the image
+(this is faster than an alternative: `minikube image load pmt-api:local` after the image has been built):
+```
+eval $(minikube docker-env)
+```
+
+Build the image:
+
+```
+docker build -t pmt-api:local .
+```
+
+Or to clean up later:
+
+```
+docker rmi pmt-api:local
+```
+
+**Create secrets in cluster used by our service**
+
+Create secrets:
+
+```
+kubectl create secret generic db-secret \
+  --from-literal=POSTGRES_USER=postgres \
+  --from-literal=POSTGRES_PASSWORD=postgres \
+  --from-literal=POSTGRES_DB=pmt_db
+```
+
+Inspect secrets:
+
+```
+kubectl get secret db-secret
+```
+
+**Apply k8s manifests defined in `k8s/`**
+
+Apply manifests:
+
+```
+kubectl apply -f k8s/
+```
+
+Check pods:
+
+```
+kubectl get pods
+```
+
+Check logs:
+
+```
+kubectl logs service/pmt
+kubectl logs service/db
+```
+
+**Port forward services to localhost**
+
+```
+kubectl port-forward service/pmt 8080:8080 9090:9090
+```
+
+Then see and run the commands documented in the "# Services" section of this README.md
+
+**Teardown our cluster specfications**
+
+```
+kubectl delete -f k8s/
+kubectl delete secret db-secret
+```
