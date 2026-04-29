@@ -29,11 +29,18 @@ func main() {
 	}
 
 	// Check DB connection before continuing
-	for i := 0; i < 10; i++ {
+	dbReady := false
+	for i := 0; i < 120; i++ {
 		if db.Pool.Ping(ctx) == nil {
+			dbReady = true
 			break
 		}
 		time.Sleep(time.Second)
+	}
+
+	if !dbReady {
+		slog.Error("failed to connect to database")
+		os.Exit(1)
 	}
 
 	// For local dev (for convenience), we can run DB migrations on startup
