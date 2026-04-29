@@ -5,7 +5,7 @@ Calculates monthly repayment amount for a loan.
 
 **Requirements**
 - docker and docker-compose (docker desktop comes with both docker and docker-compose binaries)
-- protocol buffer compile (protoc cli tool) e.g. `brew install protobuf`
+- protocol buffer compiler (protoc cli tool) e.g. `brew install protobuf`
 - go v1.26.2
 - required go tools `go install tool`
     - tparse: for nice test output summary
@@ -18,9 +18,9 @@ Calculates monthly repayment amount for a loan.
 go install tool
 ```
 
-**2. migratiohs**
+**2. migrations**
 
-- For convenience, migrations are ran automatically when our pmt service starts up, for production this should be changes so migrations are ran on their own
+- For convenience, migrations are ran automatically when our pmt service starts up, for production this should be changed so migrations are ran on their own
 - The local dev postgres DB can be easily reset with `docker-compose down` or using the below make target
 
 ```
