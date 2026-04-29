@@ -6,21 +6,27 @@ Calculates monthly repayment amount for a loan.
 **Requirements**
 - docker and docker-compose (docker desktop comes with both docker and docker-compose binaries)
 - go v1.26.2
-- tparse `go install github.com/mfridman/tparse@v0.18` for nice test output summary
+- required go tools `go install tool`
+    - tparse: for nice test output summary
+    - grpc-gateway binaries and dependencies
 - ability to run Makefile
 
-# Running and testing services locally
-
-**Install tools required by go.mod e.g. grpc-gateway deps**
+**1. Install tools required by go.mod e.g. grpc-gateway deps**
 
 ```
 go install tool
 ```
 
-**migratiohs**
-- For convenience in local dev, migrations are ran automatically when our pmt service starts up
+**2. migratiohs**
 
-**Run services locally (including a postgres db)**
+- For convenience, migrations are ran automatically when our pmt service starts up, for production this should be changes so migrations are ran on their own
+- The local dev postgres DB can be easily reset with `docker-compose down` or using the below make target
+
+```
+make docker-down
+```
+
+**3. Run services locally (including a postgres db)**
 
 - The below command can be used to run all services in this repo locally (there is only 1 at the moment)
 - This uses `docker-compose.yml` to spin up a postgres DB server
@@ -29,15 +35,9 @@ go install tool
 make docker-build-run
 ```
 
-**resetting local dev DB**
+**4. Running tests**
 
-- The local dev postgres DB can be easily reset with `docker-compose down` or using the below make target
-
-```
-make docker-down
-```
-
-**Running tests**
+running tests uses the tparse go tool, which just changes the output to a nice summary
 
 ```
 make test [pkg?] [run?]

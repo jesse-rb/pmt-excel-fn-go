@@ -1,9 +1,11 @@
 .PHONY: protoc docker-build-run test
 
 protoc-gateway:
-	cd ./protobuf/ && protoc -I . --grpc-gateway_out ../protogen/ \
-    --grpc-gateway_opt paths=source_relative \
-    $$(find . -name "*.proto")
+	mkdir -p protogen && \
+	cd ./protobuf/ && \
+	protoc -I . --grpc-gateway_out ../protogen/ \
+	--grpc-gateway_opt paths=source_relative \
+	$$(find . -name "*.proto")
 
 protoc: protoc-gateway
 	cd ./protobuf/ && protoc -I . \
